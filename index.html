@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wang Ji Second - Typing Game</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <p class="eyebrow">Single Player Challenge</p>
+        <h1>Wang Ji Second</h1>
+        <p class="subtitle">Survive 10 rounds by typing every prompt before time runs out.</p>
+      </header>
+
+      <section class="hud" aria-label="Game status">
+        <div class="hud-item">
+          <span class="hud-label">Round</span>
+          <strong id="round-value">0 / 10</strong>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Time Left</span>
+          <strong id="timer-value">0.0s</strong>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Score</span>
+          <strong id="score-value">0</strong>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Streak</span>
+          <strong id="streak-value">0</strong>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Best</span>
+          <strong id="best-value">0</strong>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Mistakes</span>
+          <strong id="mistakes-value">0</strong>
+        </div>
+      </section>
+
+      <section class="hud progress-wrap" aria-label="Round progress">
+        <div class="hud-item progress-item">
+          <span class="hud-label">Campaign Progress</span>
+          <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="campaign-progress">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-live="polite">
+        <p id="status-text" class="status-text">Press start to begin the first round.</p>
+
+        <p id="target-text" class="target-text" aria-label="Typing prompt"></p>
+
+        <label for="typing-input" class="input-label">Type here</label>
+        <input
+          id="typing-input"
+          class="typing-input"
+          type="text"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="The prompt appears above..."
+          disabled
+        />
+
+        <div class="actions">
+          <label class="difficulty-wrap" for="difficulty-select">
+            Difficulty
+            <select id="difficulty-select" class="difficulty-select">
+              <option value="easy">Easy</option>
+              <option value="normal" selected>Normal</option>
+              <option value="hard">Hard</option>
+            </select>
+          </label>
+          <button id="start-button" class="btn btn-primary" type="button">Start Game</button>
+          <button id="next-button" class="btn" type="button" hidden>Next Round</button>
+          <button id="restart-button" class="btn" type="button" hidden>Restart</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
