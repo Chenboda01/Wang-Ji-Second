@@ -1,7 +1,9 @@
 const TOTAL_ROUNDS = 10;
 const BASE_TIME = 22;
 const MIN_TIME = 8;
-const PENALTY_SECONDS = 1.2;
+const MIN_PENALTY_SECONDS = 2;
+const MAX_PENALTY_SECONDS = 10;
+const DEFAULT_PENALTY_SECONDS = 2;
 const BEST_SCORE_KEY = "wj-second-best-score";
 
 const difficultyConfig = {
@@ -65,6 +67,7 @@ const promptsByRound = [
 
 const roundValue = document.getElementById("round-value");
 const timerValue = document.getElementById("timer-value");
+const penaltyValue = document.getElementById("penalty-value");
 const mistakesValue = document.getElementById("mistakes-value");
 const scoreValue = document.getElementById("score-value");
 const streakValue = document.getElementById("streak-value");
@@ -75,6 +78,8 @@ const progressFill = document.getElementById("progress-fill");
 const campaignProgress = document.getElementById("campaign-progress");
 const typingInput = document.getElementById("typing-input");
 const difficultySelect = document.getElementById("difficulty-select");
+const penaltyRange = document.getElementById("penalty-range");
+const penaltyInput = document.getElementById("penalty-input");
 const startButton = document.getElementById("start-button");
 const nextButton = document.getElementById("next-button");
 const restartButton = document.getElementById("restart-button");
@@ -88,10 +93,26 @@ const game = {
   streak: 0,
   bestScore: 0,
   difficulty: "normal",
+  penaltySeconds: DEFAULT_PENALTY_SECONDS,
   lastTypedLength: 0,
   timerId: null,
   playing: false
 };
+
+function normalizePenalty(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return DEFAULT_PENALTY_SECONDS;
+  }
+  return Math.min(MAX_PENALTY_SECONDS, Math.max(MIN_PENALTY_SECONDS, Math.round(parsed)));
+}
+
+function syncPenaltyControls(value) {
+  const penalty = normalizePenalty(value);
+  game.penaltySeconds = penalty;
+  penaltyRange.value = String(penalty);
+  penaltyInput.value = String(penalty);
+}
 
 function pickPrompt(roundNumber) {
   const pool = promptsByRound[roundNumber - 1];
@@ -116,6 +137,7 @@ function setStatus(message, tone) {
 function updateHud() {
   roundValue.textContent = `${game.round} / ${TOTAL_ROUNDS}`;
   timerValue.textContent = `${Math.max(0, game.timeLeft).toFixed(1)}s`;
+  penaltyValue.textContent = `${game.penaltySeconds}s`;
   mistakesValue.textContent = String(game.mistakes);
   scoreValue.textContent = String(game.score);
   streakValue.textContent = String(game.streak);
@@ -143,10 +165,9 @@ function escapeHtml(text) {
 }
 
 function applyMistakePenalty(count) {
-  const penalty = PENALTY_SECONDS * difficultyConfig[game.difficulty].penaltyMultiplier;
   game.mistakes += count;
   game.streak = 0;
-  game.timeLeft = Math.max(0, game.timeLeft - penalty * count);
+  game.timeLeft = Math.max(0, game.timeLeft - game.penaltySeconds * count);
   typingInput.classList.remove("shake");
   requestAnimationFrame(() => {
     typingInput.classList.add("shake");
@@ -232,7 +253,7 @@ function startRound(roundNumber) {
   startButton.hidden = true;
   difficultySelect.disabled = true;
 
-  setStatus(`Round ${roundNumber} started. Wrong keys cost time.`, "");
+  setStatus(`Round ${roundNumber} started. Each mistake costs ${game.penaltySeconds}s.`, "");
   renderPrompt();
   updateHud();
 
@@ -273,9 +294,8 @@ typingInput.addEventListener("input", () => {
 
   if (errorsRemoved > 0) {
     typingInput.value = typed;
-    applyMistakePenalty(errorsRemoved);
-    const penalty = PENALTY_SECONDS * difficultyConfig[game.difficulty].penaltyMultiplier;
-    setStatus(`Mistake: -${(penalty * errorsRemoved).toFixed(1)}s`, "bad");
+    applyMistakePenalty(1);
+    setStatus(`Mistake: -${game.penaltySeconds.toFixed(0)}s`, "bad");
   } else if (typed.length > game.lastTypedLength) {
     game.streak += typed.length - game.lastTypedLength;
   }
@@ -305,6 +325,25 @@ difficultySelect.addEventListener("change", () => {
   setStatus(`Difficulty set to ${game.difficulty}. Press start when ready.`, "");
 });
 
+penaltyRange.addEventListener("input", () => {
+  syncPenaltyControls(penaltyRange.value);
+  if (!game.playing) {
+    setStatus(`Mistake penalty set to ${game.penaltySeconds}s. Press start when ready.`, "");
+  }
+});
+
+penaltyInput.addEventListener("input", () => {
+  syncPenaltyControls(penaltyInput.value);
+});
+
+penaltyInput.addEventListener("change", () => {
+  syncPenaltyControls(penaltyInput.value);
+  if (!game.playing) {
+    setStatus(`Mistake penalty set to ${game.penaltySeconds}s. Press start when ready.`, "");
+  }
+});
+
 loadBestScore();
+syncPenaltyControls(DEFAULT_PENALTY_SECONDS);
 updateHud();
 targetText.textContent = "Prompt text appears here once the game begins.";

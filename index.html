@@ -24,6 +24,10 @@
           <strong id="timer-value">0.0s</strong>
         </div>
         <div class="hud-item">
+          <span class="hud-label">Penalty</span>
+          <strong id="penalty-value">2s</strong>
+        </div>
+        <div class="hud-item">
           <span class="hud-label">Score</span>
           <strong id="score-value">0</strong>
         </div>
@@ -76,6 +80,14 @@
               <option value="normal" selected>Normal</option>
               <option value="hard">Hard</option>
             </select>
+          </label>
+          <label class="difficulty-wrap penalty-wrap" for="penalty-range">
+            Mistake Penalty
+            <div class="penalty-controls">
+              <input id="penalty-range" class="penalty-range" type="range" min="2" max="10" step="1" value="2" />
+              <input id="penalty-input" class="penalty-input" type="number" min="2" max="10" step="1" value="2" />
+              <span class="penalty-unit">sec</span>
+            </div>
           </label>
           <button id="start-button" class="btn btn-primary" type="button">Start Game</button>
           <button id="next-button" class="btn" type="button" hidden>Next Round</button>
